@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complete Payment – Top Hat Limo</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- STRIPE -->
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <!-- PAYPAL -->
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID"></script>
+
+  <style>
+    .payment-wrapper {
+      max-width: 650px;
+      margin: 40px auto;
+      background: #161616;
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid #333;
+    }
+
+    .summary-box {
+      background: #111;
+      border: 1px solid #333;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .summary-box h3 {
+      color: #e6c35c;
+      margin-top: 0;
+    }
+
+    .payment-section {
+      margin-top: 25px;
+    }
+
+    .payment-title {
+      color: #e6c35c;
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    .cashapp-box {
+      background: #0c0c0c;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #card-element {
+      padding: 12px;
+      background: #1f1f1f;
+      border-radius: 8px;
+      border: 1px solid #333;
+      margin-bottom: 10px;
+    }
+
+    .btn-full {
+      width: 100%;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <img src="logo.png" class="logo" alt="Top Hat Limo Logo">
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="reservations.html">Reservations</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="calendar.html">Calendar</a>
+      <a href="payments.html" class="active">Payments</a>
+    </nav>
+  </div>
+</header>
+
+<section class="section">
+  <div class="payment-wrapper">
+
+    <!-- BOOKING SUMMARY -->
+    <div class="summary-box">
+      <h3>Booking Summary</h3>
+      <p><strong>Name:</strong> <span id="summaryName"></span></p>
+      <p><strong>Date:</strong> <span id="summaryDate"></span></p>
+      <p><strong>Time:</strong> <span id="summaryTime"></span></p>
+      <p><strong>Pickup:</strong> <span id="summaryPickup"></span></p>
+      <p><strong>Vehicle:</strong> <span id="summaryVehicle"></span></p>
+      <p><strong>Total:</strong> $<span id="summaryTotal"></span></p>
+    </div>
+
+    <!-- STRIPE -->
+    <div class="payment-section">
+      <h3 class="payment-title">Pay with Debit / Credit Card</h3>
+      <div id="card-element"></div>
+      <button id="payBtn" class="btn btn-full">Pay Now</button>
+    </div>
+
+    <!-- PAYPAL -->
+    <div class="payment-section">
+      <h3 class="payment-title">Pay with PayPal</h3>
+      <div id="paypal-button-container"></div>
+    </div>
+
+    <!-- SQUARE -->
+    <div class="payment-section">
+      <h3 class="payment-title">Pay with Square</h3>
+      <a href="YOUR_SQUARE_PAYMENT_LINK" class="btn btn-full" style="text-align:center;">Square Payment</a>
+    </div>
+
+    <!-- CASH APP -->
+    <div class="cashapp-box">
+      <h3 style="color:#e6c35c;">Cash App</h3>
+      <p>Send to: <strong>$TopHatLimo</strong></p>
+      <img src="cashapp-qr.png" width="140">
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  © 2026 Top Hat Limo Services
+</footer>
+
+<script>
+/* -------------------------
+   LOAD BOOKING SUMMARY
+--------------------------*/
+const booking = JSON.parse(localStorage.getItem("latestBooking") || "{}");
+
+document.getElementById("summaryName").textContent = booking.name || "";
+document.getElementById("summaryDate").textContent = booking.date || "";
+document.getElementById("summaryTime").textContent = booking.time || "";
+document.getElementById("summaryPickup").textContent = booking.pickup || "";
+document.getElementById("summaryVehicle").textContent = booking.vehicle || "";
+document.getElementById("summaryTotal").textContent = booking.total || "";
+
+/* -------------------------
+   STRIPE CARD PAYMENTS
+--------------------------*/
+const stripe = Stripe("YOUR_STRIPE_PUBLIC_KEY");
+const elements = stripe.elements();
+const card = elements.create("card", { style: { base: { color:"#fff" } }});
+card.mount("#card-element");
+
+document.getElementById("payBtn").addEventListener("click", async () => {
+  const { paymentMethod, error } = await stripe.createPaymentMethod({
+    type: "card",
+    card: card
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  const res = await fetch("/api/pay-stripe", {
+    method: "POST",
+    headers: { "Content-Type":"application/json" },
+    body: JSON.stringify({ paymentMethod: paymentMethod.id, booking })
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    alert("Payment Successful!");
+    window.location = "receipt.html";
+  }
+});
+
+/* -------------------------
+   PAYPAL BUTTON
+--------------------------*/
+paypal.Buttons({
+  createOrder: () => {
+    return fetch("/api/pay-paypal", {
+      method: "POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ booking })
+    })
+    .then(res => res.json())
+    .then(data => data.orderID);
+  },
+  onApprove: (data) => {
+    window.location = "receipt.html";
+  }
+}).render("#paypal-button-container");
+
+</script>
+
+</body>
+</html>

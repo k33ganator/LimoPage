@@ -1,0 +1,11 @@
+{
+  "name": "tophat-limo",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "dependencies": {
+    "stripe": "^12.0.0",
+    "nodemailer": "^6.9.0",
+    "twilio": "^4.0.0"
+  }
+}
+

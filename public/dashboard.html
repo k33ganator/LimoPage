@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard – Top Hat Limo Services</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <img src="logo.png" class="logo" alt="Top Hat Logo">
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="reservations.html">Reservations</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="calendar.html">Calendar</a>
+      <a href="payments.html">Payments</a>
+    </nav>
+  </div>
+</header>
+
+<section class="section">
+  <h2 class="section-title">Booking Dashboard</h2>
+
+  <input 
+    type="text" 
+    id="searchBookings" 
+    placeholder="Search by name, date, vehicle..." 
+    class="search-input"
+  >
+
+  <table class="booking-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Pickup</th>
+        <th>Date</th>
+        <th>Vehicle</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="bookingsBody"></tbody>
+  </table>
+</section>
+
+<footer>
+  © 2026 Top Hat Limo Services
+</footer>
+
+<script src="script.js"></script>
+<script>
+async function loadBookings() {
+    const res = await fetch("/api/get-bookings");
+    const data = await res.json();
+
+    const body = document.getElementById("bookingsBody");
+    body.innerHTML = "";
+
+    data.forEach(b => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${b.name}</td>
+            <td>${b.pickup}</td>
+            <td>${b.date} @ ${b.time}</td>
+            <td>${b.vehicle}</td>
+            <td>
+                <select onchange="updateStatus('${b.id}', this.value)">
+                  <option ${b.status === "Pending" ? "selected" : ""}>Pending</option>
+                  <option ${b.status === "Confirmed" ? "selected" : ""}>Confirmed</option>
+                  <option ${b.status === "Completed" ? "selected" : ""}>Completed</option>
+                </select>
+            </td>
+            <td>
+                <button class="btn-red" onclick="deleteBooking('${b.id}')">X</button>
+            </td>
+        `;
+        body.appendChild(row);
+    });
+}
+
+async function updateStatus(id, status) {
+    await fetch("/api/update-status", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ id, status })
+    });
+}
+
+async function deleteBooking(id) {
+    await fetch("/api/delete-booking", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ id })
+    });
+
+    loadBookings();
+}
+
+document.getElementById("searchBookings").addEventListener("input", function() {
+    const text = this.value.toLowerCase();
+    document.querySelectorAll("#bookingsBody tr").forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(text) ? "" : "none";
+    });
+});
+
+loadBookings();
+</script>
+
+</body>
+</html>

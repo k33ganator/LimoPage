@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Owner Login – Top Hat Limo Services</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <img src="logo.png" class="logo" alt="Top Hat Logo">
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="reservations.html">Reservations</a>
+      <a href="#" class="active">Owner Login</a>
+    </nav>
+  </div>
+</header>
+
+<section class="section">
+  <h2 class="section-title">Owner Login</h2>
+
+  <form id="adminLoginForm" class="reservation-form">
+
+    <label>Username</label>
+    <input type="text" id="adminUser" placeholder="owner" required>
+
+    <label>Password</label>
+    <input type="password" id="adminPass" placeholder="********" required>
+
+    <button type="submit" class="btn-gold" style="margin-top:20px;">
+      Login
+    </button>
+
+  </form>
+
+  <p id="adminLoginMessage" style="margin-top:18px; color:#e6c35c; text-align:center;"></p>
+</section>
+
+<footer>
+  © 2026 Top Hat Limo Services
+</footer>
+
+<script src="script.js"></script>
+
+<script>
+document.getElementById("adminLoginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const res = await fetch("/api/admin-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            user: document.getElementById("adminUser").value,
+            pass: document.getElementById("adminPass").value
+        })
+    });
+
+    const msg = document.getElementById("adminLoginMessage");
+
+    if (res.ok) {
+        msg.textContent = "Login successful! Redirecting...";
+        setTimeout(() => window.location.href = "dashboard.html", 900);
+    } else {
+        msg.textContent = "Invalid login.";
+    }
+});
+</script>
+
+</body>
+</html>

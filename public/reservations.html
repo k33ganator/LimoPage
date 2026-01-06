@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewportcontent="width=device-width, initial-scale=1.0">
+  <title>Reservations – Top Hat Limo Services</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <img src="logo.png" class="logo" alt="Top Hat Logo">
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="reservations.html" class="active">Reservations</a>
+      <a href="calendar.html">Calendar</a>
+      <a href="payments.html">Payments</a>
+      <a href="admin-login.html" class="admin-link">Owner Login</a>
+    </nav>
+  </div>
+</header>
+
+<section class="section">
+  <h2 class="section-title">Book a Reservation</h2>
+
+  <form id="reservationForm" class="reservation-form">
+
+    <label>Full Name</label>
+    <input type="text" id="fullName" placeholder="John Doe" required>
+
+    <label>Phone Number</label>
+    <input type="tel" id="phone" placeholder="928-245-7344" required>
+
+    <label>Pickup Location</label>
+    <input type="text" id="pickup" placeholder="123 Main St" required>
+
+    <label>Drop-off Location</label>
+    <input type="text" id="dropoff" placeholder="456 Broadway" required>
+
+    <label>Date</label>
+    <input type="date" id="date" required>
+
+    <label>Time</label>
+    <input type="time" id="time" required>
+
+    <label>Vehicle Type</label>
+    <select id="vehicle" required>
+      <option value="">Select a Vehicle</option>
+      <option value="Executive Sedan">Executive Sedan</option>
+      <option value="Luxury SUV">Luxury SUV</option>
+      <option value="Stretch Limo">Stretch Limo</option>
+    </select>
+
+    <label>Notes (Optional)</label>
+    <textarea id="notes" placeholder="Special requests..."></textarea>
+
+    <button type="submit" class="btn-gold" style="margin-top:20px;">
+      Submit Reservation
+    </button>
+
+  </form>
+
+  <p id="resultMessage" style="margin-top:20px; color:#e6c35c;"></p>
+</section>
+
+<footer>
+  © 2026 Top Hat Limo Services • <a href="admin-login.html">Owner Login</a>
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+</html>
